@@ -12,6 +12,8 @@ gem 'slim-rails'
 # Forms
 gem 'simple_form'
 # Use Uglifier as compressor for JavaScript assets
+# Using routes in javascripts
+gem 'js-routes'
 gem 'uglifier', '>= 1.3.0'
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 4.0.0'
@@ -33,6 +35,7 @@ group :development do
   gem 'spring-commands-rspec'
   gem 'better_errors'
   gem 'binding_of_caller'
+  gem 'coffee-rails-source-maps'
 end
 
 group :development, :test do
