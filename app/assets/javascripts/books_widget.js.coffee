@@ -33,7 +33,7 @@ class BooksWidget
       $options = @_optionsFor @_authors, (author) -> author.name
       @_$author_select.empty().append $options
 
-  # Convert array to options list for select.
+  # Converts array to options list for select.
   # Callback must relieve element of array and return
   # displaying value for option
   _optionsFor: (array, callback) ->
@@ -44,7 +44,7 @@ class BooksWidget
       $options = $options.add $option
     $options
 
-  # Setup options for books select
+  # Setups options for books select
   _setBooksList: ->
     @_$book_select.empty()
     try
@@ -68,7 +68,7 @@ class BooksWidget
       return
     @_$message.html("<b>#{author.name}</b> написал произведение <b>#{book.title}</b>")
 
-  # Receives options list and return random option
+  # Receives options list and returns random option
   _selectRandomOption: (options) ->
     length = options.length
     index = getRandomInt(1, length-1)
