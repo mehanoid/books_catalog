@@ -5,9 +5,11 @@ getRandomInt = (min, max) ->
 class BooksWidget
   constructor: (widget) ->
     @_$widget = $ widget
-    @_$author_select = $('.author select')
-    @_$book_select = $('.book select')
-    @_$message = $('.message')
+    unless @_$widget.length
+      throw "#{widget} was not found"
+    @_$author_select = @_$widget.find('.author select')
+    @_$book_select = @_$widget.find('.book select')
+    @_$message = @_$widget.find('.message')
     @_fetchData()
     @_setMessage()
 
@@ -67,4 +69,4 @@ class BooksWidget
     options.eq(index).prop('selected', true);
 
 $ ->
-  books_widget = new BooksWidget('.books_widget')
+  try books_widget = new BooksWidget('.books_widget')
