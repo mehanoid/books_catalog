@@ -1,63 +1,78 @@
 getRandomInt = (min, max) ->
   Math.floor(Math.random() * (max - min + 1) + min);
 
+class Select
+  constructor: (@_$select) ->
+    @setData []
+
+  setData: (data, displayingField) ->
+    @_$select.empty()
+    $options = @_optionsFor data, displayingField
+    @_$select.append $options
+
+  selected: ->
+    @_$select.find(':selected').data('object')
+
+  selectRandom: ->
+    options = @_$select.find('option')
+    length = options.length
+    index = getRandomInt(1, length-1)
+    options.eq(index).prop('selected', true);
+
+  # events
+
+  change: (callback) ->
+    @_$select.change callback
+
+  # private
+
+  # Converts array to options list
+  _optionsFor: (array, displayingField) ->
+    $options = $('<option value="0">не выбрано</option>')
+    for item in array
+      $option = $ "<option value='#{item.id}'>#{item[displayingField]}</option>"
+      $option.data('object', item)
+      $options = $options.add $option
+    $options
+
 
 class BooksWidget
   constructor: (widget) ->
     @_$widget = $ widget
     unless @_$widget.length
       throw "#{widget} was not found"
-    @_$author_select = @_$widget.find('.author select')
-    @_$book_select = @_$widget.find('.book select')
+    @_$author_select = new Select @_$widget.find('.author select')
+    @_$book_select = new Select @_$widget.find('.book select')
     @_$message = @_$widget.find('.message')
     @_fetchData()
-    @_setMessage()
+    @_updateMessage()
 
     @_$author_select.change =>
-      @_setBooksList()
-      @_setMessage()
+      @_updateBooksList()
+      @_updateMessage()
 
     @_$book_select.change =>
-      @_setMessage()
+      @_updateMessage()
 
     $('button.lucky').click =>
-      @_selectRandomOption @_$author_select.find('option')
-      @_setBooksList()
-      @_selectRandomOption @_$book_select.find('option')
-      @_setMessage()
+      @_$author_select.selectRandom()
+      @_updateBooksList()
+      @_$book_select.selectRandom()
+      @_updateMessage()
+
+  # private
 
   # Saves data from server to @_authors array
   _fetchData: ->
     $.getJSON Routes.authors_path(), (data) =>
       @_authors = data
-      $options = @_optionsFor @_authors, (author) -> author.name
-      @_$author_select.empty().append $options
-
-  # Converts array to options list for select.
-  # Callback must relieve element of array and return
-  # displaying value for option
-  _optionsFor: (array, callback) ->
-    $options = $('<option value="0">не выбрано</option>')
-    for item in array
-      $option = $ "<option value='#{item.id}'>#{callback(item)}</option>"
-      $option.data('object', item)
-      $options = $options.add $option
-    $options
+      @_$author_select.setData data, 'name'
 
   # Setups options for books select
-  _setBooksList: ->
-    @_$book_select.empty()
-    try
-      $options = @_optionsFor @_currentAuthor().books, (book) -> book.title
-      @_$book_select.append $options
+  _updateBooksList: ->
+    @_$book_select.setData @_currentAuthor()?.books ? [] , 'title'
 
-  _currentAuthor: ->
-    @_$author_select.find(':selected').data('object')
-
-  _currentBook: ->
-    @_$book_select.find(':selected').data('object')
-
-  _setMessage: ->
+  _updateMessage: ->
     author = @_currentAuthor()
     unless author?
       @_$message.html("выберите автора")
@@ -68,11 +83,12 @@ class BooksWidget
       return
     @_$message.html("<b>#{author.name}</b> написал произведение <b>#{book.title}</b>")
 
-  # Receives options list and returns random option
-  _selectRandomOption: (options) ->
-    length = options.length
-    index = getRandomInt(1, length-1)
-    options.eq(index).prop('selected', true);
+  _currentAuthor: ->
+    @_$author_select.selected()
+
+  _currentBook: ->
+    @_$book_select.selected()
+
 
 $ ->
   try books_widget = new BooksWidget('.books_widget')
