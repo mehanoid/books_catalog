@@ -2,8 +2,8 @@
 
 ## Installation
 
-    git clone https://github.com/mehanoid/ruby_hotel.git
-    cd ruby_hotel
+    git clone https://github.com/mehanoid/books_catalog.git
+    cd books_catalog
     bundle install
     rake db:setup
     
