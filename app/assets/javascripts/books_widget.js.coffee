@@ -37,27 +37,24 @@ class Select
 
 
 class BooksWidget
-  constructor: (widget) ->
-    @_$widget = $ widget
-    unless @_$widget.length
-      throw "#{widget} was not found"
-    @_$author_select = new Select @_$widget.find('.author select')
-    @_$book_select = new Select @_$widget.find('.book select')
+  constructor: (@_$widget) ->
+    @_author_select = new Select @_$widget.find('.author select')
+    @_book_select = new Select @_$widget.find('.book select')
     @_$message = @_$widget.find('.message')
     @_fetchData()
     @_updateMessage()
 
-    @_$author_select.change =>
+    @_author_select.change =>
       @_updateBooksList()
       @_updateMessage()
 
-    @_$book_select.change =>
+    @_book_select.change =>
       @_updateMessage()
 
     $('button.lucky').click =>
-      @_$author_select.selectRandom()
+      @_author_select.selectRandom()
       @_updateBooksList()
-      @_$book_select.selectRandom()
+      @_book_select.selectRandom()
       @_updateMessage()
 
   # private
@@ -66,11 +63,11 @@ class BooksWidget
   _fetchData: ->
     $.getJSON Routes.authors_path(), (data) =>
       @_authors = data
-      @_$author_select.setData data, 'name'
+      @_author_select.setData data, 'name'
 
   # Setups options for books select
   _updateBooksList: ->
-    @_$book_select.setData @_currentAuthor()?.books ? [] , 'title'
+    @_book_select.setData @_currentAuthor()?.books ? [] , 'title'
 
   _updateMessage: ->
     author = @_currentAuthor()
@@ -84,11 +81,13 @@ class BooksWidget
     @_$message.html("<b>#{author.name}</b> написал произведение <b>#{book.title}</b>")
 
   _currentAuthor: ->
-    @_$author_select.selected()
+    @_author_select.selected()
 
   _currentBook: ->
-    @_$book_select.selected()
+    @_book_select.selected()
 
 
 $ ->
-  try books_widget = new BooksWidget('.books_widget')
+  $widget = $('.books_widget')
+  if $widget.length
+    books_widget = new BooksWidget $widget
